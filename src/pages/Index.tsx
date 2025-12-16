@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const mockProducts = [
   { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 850, recommendation: '' },
@@ -15,9 +16,47 @@ const mockProducts = [
   { id: 5, name: 'MANNOL Molibden Benzin 10W-40', article: 'MN1120-4', stock1: 42, stock2: 8, rating: 4.8, isNew: false, price: 790, recommendation: 'Критический остаток!' },
 ];
 
+const mockOrders = [
+  { 
+    id: 12847, 
+    date: '18.12.2024', 
+    status: 'В обработке', 
+    statusColor: 'secondary',
+    total: 245600,
+    items: [
+      { productId: 1, quantity: 120, warehouse: 'Склад 1' },
+      { productId: 3, quantity: 50, warehouse: 'Склад 1' },
+    ]
+  },
+  { 
+    id: 12851, 
+    date: '20.12.2024', 
+    status: 'Подтвержден', 
+    statusColor: 'green',
+    total: 187340,
+    items: [
+      { productId: 2, quantity: 80, warehouse: 'Склад 2' },
+      { productId: 4, quantity: 150, warehouse: 'Склад 1' },
+    ]
+  },
+  { 
+    id: 12869, 
+    date: '23.12.2024', 
+    status: 'Отгружен', 
+    statusColor: 'blue',
+    total: 312890,
+    items: [
+      { productId: 1, quantity: 200, warehouse: 'Склад 1' },
+      { productId: 5, quantity: 95, warehouse: 'Склад 2' },
+      { productId: 3, quantity: 30, warehouse: 'Склад 1' },
+    ]
+  },
+];
+
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<Array<{ id: number; quantity: number }>>([]);
+  const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
 
   const addToCart = (productId: number) => {
     const existing = cartItems.find(item => item.id === productId);
@@ -359,30 +398,18 @@ const Index = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell>18.12.2024</TableCell>
-                        <TableCell className="font-medium">#12847</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">В обработке</Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold">245 600 ₽</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>20.12.2024</TableCell>
-                        <TableCell className="font-medium">#12851</TableCell>
-                        <TableCell>
-                          <Badge className="bg-green-600">Подтвержден</Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold">187 340 ₽</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>23.12.2024</TableCell>
-                        <TableCell className="font-medium">#12869</TableCell>
-                        <TableCell>
-                          <Badge className="bg-blue-600">Отгружен</Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold">312 890 ₽</TableCell>
-                      </TableRow>
+                      {mockOrders.map((order) => (
+                        <TableRow key={order.id} className="cursor-pointer hover:bg-muted/20" onClick={() => setSelectedOrder(order.id)}>
+                          <TableCell>{order.date}</TableCell>
+                          <TableCell className="font-medium">#{order.id}</TableCell>
+                          <TableCell>
+                            <Badge variant={order.statusColor === 'secondary' ? 'secondary' : 'default'} className={order.statusColor === 'green' ? 'bg-green-600' : order.statusColor === 'blue' ? 'bg-blue-600' : ''}>
+                              {order.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right font-semibold">{order.total.toLocaleString()} ₽</TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -391,6 +418,105 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={selectedOrder !== null} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Заказ #{selectedOrder}</span>
+              {selectedOrder && (
+                <Badge variant={mockOrders.find(o => o.id === selectedOrder)?.statusColor === 'secondary' ? 'secondary' : 'default'} className={mockOrders.find(o => o.id === selectedOrder)?.statusColor === 'green' ? 'bg-green-600' : mockOrders.find(o => o.id === selectedOrder)?.statusColor === 'blue' ? 'bg-blue-600' : ''}>
+                  {mockOrders.find(o => o.id === selectedOrder)?.status}
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedOrder && (() => {
+            const order = mockOrders.find(o => o.id === selectedOrder);
+            if (!order) return null;
+
+            return (
+              <div className="space-y-6 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-muted-foreground">Дата заказа</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-lg font-semibold">{order.date}</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-muted-foreground">Сумма заказа</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-lg font-semibold">{order.total.toLocaleString()} ₽</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Icon name="Package" size={18} />
+                    Состав заказа
+                  </h3>
+                  <div className="border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Товар</TableHead>
+                          <TableHead>Артикул</TableHead>
+                          <TableHead className="text-center">Количество</TableHead>
+                          <TableHead>Склад</TableHead>
+                          <TableHead className="text-right">Цена</TableHead>
+                          <TableHead className="text-right">Сумма</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {order.items.map((item, idx) => {
+                          const product = mockProducts.find(p => p.id === item.productId);
+                          if (!product) return null;
+                          return (
+                            <TableRow key={idx}>
+                              <TableCell className="font-medium">{product.name}</TableCell>
+                              <TableCell className="text-muted-foreground">{product.article}</TableCell>
+                              <TableCell className="text-center">{item.quantity} шт</TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{item.warehouse}</Badge>
+                              </TableCell>
+                              <TableCell className="text-right">{product.price.toLocaleString()} ₽</TableCell>
+                              <TableCell className="text-right font-semibold">{(product.price * item.quantity).toLocaleString()} ₽</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="flex gap-2">
+                    <Button variant="outline">
+                      <Icon name="FileText" size={16} className="mr-2" />
+                      Скачать PDF
+                    </Button>
+                    <Button variant="outline">
+                      <Icon name="Printer" size={16} className="mr-2" />
+                      Печать
+                    </Button>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground mb-1">Итого к оплате:</p>
+                    <p className="text-2xl font-bold">{order.total.toLocaleString()} ₽</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
