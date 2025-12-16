@@ -11,11 +11,11 @@ import OrderDetailDialog from '@/components/OrderDetailDialog';
 import OrderConfirmationDialog from '@/components/OrderConfirmationDialog';
 
 const mockProducts = [
-  { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 850, recommendation: '' },
-  { id: 2, name: 'MANNOL ATF AG55', article: 'MN8206-4', stock1: 340, stock2: 120, rating: 4.9, isNew: false, price: 920, recommendation: '' },
-  { id: 3, name: 'MANNOL Diesel Extra 10W-40', article: 'MN7504-10', stock1: 85, stock2: 15, rating: 4.7, isNew: false, price: 1450, recommendation: 'Малый остаток - рекомендуем пополнить' },
-  { id: 4, name: 'MANNOL Antifreeze AF12+', article: 'MN4012-5', stock1: 560, stock2: 220, rating: 4.6, isNew: true, price: 680, recommendation: '' },
-  { id: 5, name: 'MANNOL Molibden Benzin 10W-40', article: 'MN1120-4', stock1: 42, stock2: 8, rating: 4.8, isNew: false, price: 790, recommendation: 'Критический остаток!' },
+  { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 2850, recommendation: '' },
+  { id: 2, name: 'MANNOL ATF AG55', article: 'MN8206-4', stock1: 340, stock2: 120, rating: 4.9, isNew: false, price: 3920, recommendation: '' },
+  { id: 3, name: 'MANNOL Diesel Extra 10W-40', article: 'MN7504-10', stock1: 85, stock2: 15, rating: 4.7, isNew: false, price: 4450, recommendation: 'Малый остаток - рекомендуем пополнить' },
+  { id: 4, name: 'MANNOL Antifreeze AF12+', article: 'MN4012-5', stock1: 560, stock2: 220, rating: 4.6, isNew: true, price: 1680, recommendation: '' },
+  { id: 5, name: 'MANNOL Molibden Benzin 10W-40', article: 'MN1120-4', stock1: 42, stock2: 8, rating: 4.8, isNew: false, price: 2790, recommendation: 'Критический остаток!' },
 ];
 
 const mockOrders = [

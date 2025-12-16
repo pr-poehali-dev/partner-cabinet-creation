@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import OrderStatusHistory from './OrderStatusHistory';
 
 interface Product {
   id: number;
@@ -49,7 +51,13 @@ const OrderDetailDialog = ({ order, products, isOpen, onClose }: OrderDetailDial
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <Tabs defaultValue="details" className="mt-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="details">Детали заказа</TabsTrigger>
+            <TabsTrigger value="history">История статусов</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="space-y-6 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <CardHeader className="pb-3">
@@ -124,7 +132,12 @@ const OrderDetailDialog = ({ order, products, isOpen, onClose }: OrderDetailDial
               <p className="text-2xl font-bold">{order.total.toLocaleString()} ₽</p>
             </div>
           </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="mt-4">
+            <OrderStatusHistory orderId={order.id} currentStatus={order.status} />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
