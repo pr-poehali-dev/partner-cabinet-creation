@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import NotificationCenter from './NotificationCenter';
 
 interface HeaderProps {
   cartItemsCount: number;
+  onNotificationClick?: (notification: { orderId?: number }) => void;
 }
 
-const Header = ({ cartItemsCount }: HeaderProps) => {
+const Header = ({ cartItemsCount, onNotificationClick }: HeaderProps) => {
   return (
     <header className="bg-primary text-primary-foreground shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -19,9 +21,7 @@ const Header = ({ cartItemsCount }: HeaderProps) => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
-            <Icon name="Bell" size={20} />
-          </Button>
+          <NotificationCenter onNotificationClick={onNotificationClick} />
           <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 relative">
             <Icon name="ShoppingCart" size={20} />
             {cartItemsCount > 0 && (

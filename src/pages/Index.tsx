@@ -11,11 +11,11 @@ import OrderDetailDialog from '@/components/OrderDetailDialog';
 import OrderConfirmationDialog from '@/components/OrderConfirmationDialog';
 
 const mockProducts = [
-  { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 2850, recommendation: '' },
-  { id: 2, name: 'MANNOL ATF AG55', article: 'MN8206-4', stock1: 340, stock2: 120, rating: 4.9, isNew: false, price: 3920, recommendation: '' },
-  { id: 3, name: 'MANNOL Diesel Extra 10W-40', article: 'MN7504-10', stock1: 85, stock2: 15, rating: 4.7, isNew: false, price: 4450, recommendation: 'Малый остаток - рекомендуем пополнить' },
-  { id: 4, name: 'MANNOL Antifreeze AF12+', article: 'MN4012-5', stock1: 560, stock2: 220, rating: 4.6, isNew: true, price: 1680, recommendation: '' },
-  { id: 5, name: 'MANNOL Molibden Benzin 10W-40', article: 'MN1120-4', stock1: 42, stock2: 8, rating: 4.8, isNew: false, price: 2790, recommendation: 'Критический остаток!' },
+  { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 8500, recommendation: '' },
+  { id: 2, name: 'MANNOL ATF AG55', article: 'MN8206-4', stock1: 340, stock2: 120, rating: 4.9, isNew: false, price: 9200, recommendation: '' },
+  { id: 3, name: 'MANNOL Diesel Extra 10W-40', article: 'MN7504-10', stock1: 85, stock2: 15, rating: 4.7, isNew: false, price: 14500, recommendation: 'Малый остаток - рекомендуем пополнить' },
+  { id: 4, name: 'MANNOL Antifreeze AF12+', article: 'MN4012-5', stock1: 560, stock2: 220, rating: 4.6, isNew: true, price: 6800, recommendation: '' },
+  { id: 5, name: 'MANNOL Molibden Benzin 10W-40', article: 'MN1120-4', stock1: 42, stock2: 8, rating: 4.8, isNew: false, price: 7900, recommendation: 'Критический остаток!' },
 ];
 
 const mockOrders = [
@@ -92,12 +92,31 @@ const Index = () => {
     console.log('Заказ подтвержден на дату:', selectedDate);
     setShowConfirmDialog(false);
     setCartItems([]);
-    alert(`Заказ успешно отправлен в 1С на дату: ${selectedDate}`);
+    
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-20 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-slide-in flex items-center gap-3';
+    notification.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <div>
+        <p class="font-semibold">Заказ успешно отправлен в 1С!</p>
+        <p class="text-sm opacity-90">Дата отгрузки: ${selectedDate}</p>
+      </div>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  };
+
+  const handleNotificationClick = (notification: { orderId?: number }) => {
+    if (notification.orderId) {
+      setSelectedOrder(notification.orderId);
+    }
   };
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <Header cartItemsCount={cartItems.length} />
+      <Header cartItemsCount={cartItems.length} onNotificationClick={handleNotificationClick} />
 
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
