@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Header from '@/components/Header';
+import CatalogTab from '@/components/CatalogTab';
+import OrderTab from '@/components/OrderTab';
+import OrderDetailDialog from '@/components/OrderDetailDialog';
 
 const mockProducts = [
   { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 850, recommendation: '' },
@@ -79,40 +80,11 @@ const Index = () => {
     return sum + (product?.price || 0) * item.quantity;
   }, 0);
 
+  const selectedOrderData = mockOrders.find(o => o.id === selectedOrder) || null;
+
   return (
     <div className="min-h-screen bg-muted/30">
-      <header className="bg-primary text-primary-foreground shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center font-bold text-primary text-xl">
-              M
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">MANNOL</h1>
-              <p className="text-xs text-primary-foreground/80">Личный кабинет партнера</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10">
-              <Icon name="Bell" size={20} />
-            </Button>
-            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 relative">
-              <Icon name="ShoppingCart" size={20} />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-secondary text-primary text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                  {cartItems.length}
-                </span>
-              )}
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <Icon name="User" size={16} className="text-primary" />
-              </div>
-              <span className="text-sm font-medium">Иван Петров</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header cartItemsCount={cartItems.length} />
 
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -186,199 +158,21 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="catalog" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Каталог продукции</span>
-                  <div className="flex gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      <Icon name="Star" size={12} className="mr-1" />
-                      Новинки: {mockProducts.filter(p => p.isNew).length}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
-                      <Icon name="AlertTriangle" size={12} className="mr-1" />
-                      Требуют внимания: {mockProducts.filter(p => p.recommendation).length}
-                    </Badge>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <div className="relative">
-                    <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Поиск по названию или артикулу..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="border rounded-lg">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Товар</TableHead>
-                        <TableHead>Артикул</TableHead>
-                        <TableHead className="text-center">Склад 1</TableHead>
-                        <TableHead className="text-center">Склад 2</TableHead>
-                        <TableHead className="text-center">Рейтинг</TableHead>
-                        <TableHead className="text-right">Цена</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredProducts.map((product) => (
-                        <TableRow key={product.id} className="hover:bg-muted/20">
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {product.name}
-                              {product.isNew && (
-                                <Badge variant="secondary" className="text-xs">NEW</Badge>
-                              )}
-                            </div>
-                            {product.recommendation && (
-                              <p className="text-xs text-orange-600 mt-1 flex items-center gap-1">
-                                <Icon name="AlertCircle" size={12} />
-                                {product.recommendation}
-                              </p>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">{product.article}</TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant={product.stock1 > 200 ? "default" : product.stock1 > 50 ? "secondary" : "destructive"}>
-                              {product.stock1}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant={product.stock2 > 100 ? "default" : product.stock2 > 20 ? "secondary" : "destructive"}>
-                              {product.stock2}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Icon name="Star" size={14} className="text-secondary fill-secondary" />
-                              <span className="font-medium">{product.rating}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right font-semibold">{product.price} ₽</TableCell>
-                          <TableCell>
-                            <Button size="sm" onClick={() => addToCart(product.id)} className="bg-primary hover:bg-primary/90">
-                              <Icon name="Plus" size={16} className="mr-1" />
-                              В заказ
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+            <CatalogTab 
+              products={mockProducts}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onAddToCart={addToCart}
+              filteredProducts={filteredProducts}
+            />
           </TabsContent>
 
           <TabsContent value="order" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Формирование заказа</span>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Icon name="Upload" size={16} className="mr-2" />
-                        Загрузить из Excel
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Icon name="Download" size={16} className="mr-2" />
-                        Загрузить из 1С
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {cartItems.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <Icon name="ShoppingCart" size={48} className="mx-auto mb-4 opacity-30" />
-                      <p className="text-lg mb-2">Корзина пуста</p>
-                      <p className="text-sm">Добавьте товары из каталога</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {cartItems.map((item) => {
-                        const product = mockProducts.find(p => p.id === item.id);
-                        if (!product) return null;
-                        return (
-                          <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div className="flex-1">
-                              <p className="font-medium">{product.name}</p>
-                              <p className="text-sm text-muted-foreground">{product.article}</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2">
-                                <Button size="sm" variant="outline" className="h-8 w-8 p-0">-</Button>
-                                <span className="w-12 text-center font-medium">{item.quantity}</span>
-                                <Button size="sm" variant="outline" className="h-8 w-8 p-0">+</Button>
-                              </div>
-                              <p className="font-bold w-24 text-right">{(product.price * item.quantity).toLocaleString()} ₽</p>
-                              <Button size="sm" variant="ghost" className="text-destructive">
-                                <Icon name="Trash2" size={16} />
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Итоги заказа</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Товаров:</span>
-                      <span className="font-medium">{cartItems.reduce((sum, item) => sum + item.quantity, 0)} шт</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Сумма:</span>
-                      <span className="font-medium">{cartTotal.toLocaleString()} ₽</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between font-bold text-lg">
-                      <span>Итого:</span>
-                      <span>{cartTotal.toLocaleString()} ₽</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t">
-                    <label className="text-sm font-medium">Дата отгрузки</label>
-                    <Input type="date" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="w-4 h-4" />
-                      <span className="text-sm">Прямой заказ с завода</span>
-                    </label>
-                  </div>
-
-                  <Button className="w-full bg-primary hover:bg-primary/90" size="lg" disabled={cartItems.length === 0}>
-                    <Icon name="CheckCircle" size={18} className="mr-2" />
-                    Отправить заказ
-                  </Button>
-
-                  {cartTotal < 50000 && cartItems.length > 0 && (
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-800">
-                      <Icon name="Info" size={16} className="inline mr-1" />
-                      Минимальная сумма заказа: 50 000 ₽
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <OrderTab 
+              cartItems={cartItems}
+              products={mockProducts}
+              cartTotal={cartTotal}
+            />
           </TabsContent>
 
           <TabsContent value="schedule">
@@ -419,104 +213,12 @@ const Index = () => {
         </Tabs>
       </div>
 
-      <Dialog open={selectedOrder !== null} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Заказ #{selectedOrder}</span>
-              {selectedOrder && (
-                <Badge variant={mockOrders.find(o => o.id === selectedOrder)?.statusColor === 'secondary' ? 'secondary' : 'default'} className={mockOrders.find(o => o.id === selectedOrder)?.statusColor === 'green' ? 'bg-green-600' : mockOrders.find(o => o.id === selectedOrder)?.statusColor === 'blue' ? 'bg-blue-600' : ''}>
-                  {mockOrders.find(o => o.id === selectedOrder)?.status}
-                </Badge>
-              )}
-            </DialogTitle>
-          </DialogHeader>
-
-          {selectedOrder && (() => {
-            const order = mockOrders.find(o => o.id === selectedOrder);
-            if (!order) return null;
-
-            return (
-              <div className="space-y-6 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-muted-foreground">Дата заказа</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-lg font-semibold">{order.date}</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm text-muted-foreground">Сумма заказа</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-lg font-semibold">{order.total.toLocaleString()} ₽</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Icon name="Package" size={18} />
-                    Состав заказа
-                  </h3>
-                  <div className="border rounded-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead>Товар</TableHead>
-                          <TableHead>Артикул</TableHead>
-                          <TableHead className="text-center">Количество</TableHead>
-                          <TableHead>Склад</TableHead>
-                          <TableHead className="text-right">Цена</TableHead>
-                          <TableHead className="text-right">Сумма</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {order.items.map((item, idx) => {
-                          const product = mockProducts.find(p => p.id === item.productId);
-                          if (!product) return null;
-                          return (
-                            <TableRow key={idx}>
-                              <TableCell className="font-medium">{product.name}</TableCell>
-                              <TableCell className="text-muted-foreground">{product.article}</TableCell>
-                              <TableCell className="text-center">{item.quantity} шт</TableCell>
-                              <TableCell>
-                                <Badge variant="outline">{item.warehouse}</Badge>
-                              </TableCell>
-                              <TableCell className="text-right">{product.price.toLocaleString()} ₽</TableCell>
-                              <TableCell className="text-right font-semibold">{(product.price * item.quantity).toLocaleString()} ₽</TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="flex gap-2">
-                    <Button variant="outline">
-                      <Icon name="FileText" size={16} className="mr-2" />
-                      Скачать PDF
-                    </Button>
-                    <Button variant="outline">
-                      <Icon name="Printer" size={16} className="mr-2" />
-                      Печать
-                    </Button>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground mb-1">Итого к оплате:</p>
-                    <p className="text-2xl font-bold">{order.total.toLocaleString()} ₽</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-        </DialogContent>
-      </Dialog>
+      <OrderDetailDialog 
+        order={selectedOrderData}
+        products={mockProducts}
+        isOpen={selectedOrder !== null}
+        onClose={() => setSelectedOrder(null)}
+      />
     </div>
   );
 };
