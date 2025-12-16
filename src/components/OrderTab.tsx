@@ -19,9 +19,10 @@ interface OrderTabProps {
   cartItems: CartItem[];
   products: Product[];
   cartTotal: number;
+  onSubmitOrder: () => void;
 }
 
-const OrderTab = ({ cartItems, products, cartTotal }: OrderTabProps) => {
+const OrderTab = ({ cartItems, products, cartTotal, onSubmitOrder }: OrderTabProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <Card className="lg:col-span-2">
@@ -109,7 +110,12 @@ const OrderTab = ({ cartItems, products, cartTotal }: OrderTabProps) => {
             </label>
           </div>
 
-          <Button className="w-full bg-primary hover:bg-primary/90" size="lg" disabled={cartItems.length === 0}>
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90" 
+            size="lg" 
+            disabled={cartItems.length === 0 || cartTotal < 50000}
+            onClick={onSubmitOrder}
+          >
             <Icon name="CheckCircle" size={18} className="mr-2" />
             Отправить заказ
           </Button>

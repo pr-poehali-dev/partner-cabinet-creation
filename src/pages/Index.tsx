@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import CatalogTab from '@/components/CatalogTab';
 import OrderTab from '@/components/OrderTab';
 import OrderDetailDialog from '@/components/OrderDetailDialog';
+import OrderConfirmationDialog from '@/components/OrderConfirmationDialog';
 
 const mockProducts = [
   { id: 1, name: 'MANNOL 5W-40 Extreme', article: 'MN7909-4', stock1: 1200, stock2: 450, rating: 4.8, isNew: true, price: 850, recommendation: '' },
@@ -58,6 +59,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<Array<{ id: number; quantity: number }>>([]);
   const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const addToCart = (productId: number) => {
     const existing = cartItems.find(item => item.id === productId);
@@ -81,6 +83,17 @@ const Index = () => {
   }, 0);
 
   const selectedOrderData = mockOrders.find(o => o.id === selectedOrder) || null;
+
+  const handleSubmitOrder = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmOrder = (selectedDate: string) => {
+    console.log('Заказ подтвержден на дату:', selectedDate);
+    setShowConfirmDialog(false);
+    setCartItems([]);
+    alert(`Заказ успешно отправлен в 1С на дату: ${selectedDate}`);
+  };
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -172,6 +185,7 @@ const Index = () => {
               cartItems={cartItems}
               products={mockProducts}
               cartTotal={cartTotal}
+              onSubmitOrder={handleSubmitOrder}
             />
           </TabsContent>
 
@@ -218,6 +232,14 @@ const Index = () => {
         products={mockProducts}
         isOpen={selectedOrder !== null}
         onClose={() => setSelectedOrder(null)}
+      />
+
+      <OrderConfirmationDialog 
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        cartItems={cartItems}
+        products={mockProducts}
+        onConfirm={handleConfirmOrder}
       />
     </div>
   );
