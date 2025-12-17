@@ -22,10 +22,9 @@ interface CatalogTabProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onAddToCart: (productId: number) => void;
-  filteredProducts: Product[];
 }
 
-const CatalogTab = ({ products, searchQuery, onSearchChange, onAddToCart, filteredProducts }: CatalogTabProps) => {
+const CatalogTab = ({ products, searchQuery, onSearchChange, onAddToCart }: CatalogTabProps) => {
   return (
     <Card>
       <CardHeader>
@@ -70,7 +69,7 @@ const CatalogTab = ({ products, searchQuery, onSearchChange, onAddToCart, filter
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
+              {products.map((product) => (
                 <TableRow key={product.id} className="hover:bg-muted/20">
                   <TableCell>
                     <div className="flex items-center gap-2">

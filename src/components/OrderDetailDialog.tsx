@@ -6,41 +6,21 @@ import Icon from '@/components/ui/icon';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OrderStatusHistory from './OrderStatusHistory';
-
-interface Product {
-  id: number;
-  name: string;
-  article: string;
-  price: number;
-}
-
-interface OrderItem {
-  productId: number;
-  quantity: number;
-  warehouse: string;
-}
-
-interface Order {
-  id: number;
-  date: string;
-  status: string;
-  statusColor: string;
-  total: number;
-  items: OrderItem[];
-}
+import { mockOrders, mockProducts } from '@/data/mockData';
 
 interface OrderDetailDialogProps {
-  order: Order | null;
-  products: Product[];
-  isOpen: boolean;
+  orderId: number | null;
+  open: boolean;
   onClose: () => void;
 }
 
-const OrderDetailDialog = ({ order, products, isOpen, onClose }: OrderDetailDialogProps) => {
+const OrderDetailDialog = ({ orderId, open, onClose }: OrderDetailDialogProps) => {
+  const order = mockOrders.find(o => o.id === orderId);
+  
   if (!order) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
@@ -58,86 +38,74 @@ const OrderDetailDialog = ({ order, products, isOpen, onClose }: OrderDetailDial
           </TabsList>
 
           <TabsContent value="details" className="space-y-6 mt-4">
-          <div className="grid grid-cols-2 gap-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground">Дата заказа</CardTitle>
+              <CardHeader>
+                <CardTitle>Информация о заказе</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-lg font-semibold">{order.date}</p>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Дата создания</p>
+                  <p className="font-semibold">{order.date}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Общая сумма</p>
+                  <p className="font-semibold text-lg">{order.total.toLocaleString('ru-RU')} ₽</p>
+                </div>
               </CardContent>
             </Card>
+
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm text-muted-foreground">Сумма заказа</CardTitle>
+              <CardHeader>
+                <CardTitle>Товары в заказе</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-semibold">{order.total.toLocaleString()} ₽</p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Товар</TableHead>
+                      <TableHead>Артикул</TableHead>
+                      <TableHead>Склад</TableHead>
+                      <TableHead className="text-right">Количество</TableHead>
+                      <TableHead className="text-right">Цена</TableHead>
+                      <TableHead className="text-right">Сумма</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {order.items.map((item, index) => {
+                      const product = mockProducts.find(p => p.id === item.productId);
+                      if (!product) return null;
+                      
+                      return (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell>{product.article}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{item.warehouse}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">{item.quantity} шт</TableCell>
+                          <TableCell className="text-right">{product.price.toLocaleString('ru-RU')} ₽</TableCell>
+                          <TableCell className="text-right font-semibold">
+                            {(product.price * item.quantity).toLocaleString('ru-RU')} ₽
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
-          </div>
-
-          <div>
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Icon name="Package" size={18} />
-              Состав заказа
-            </h3>
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead>Товар</TableHead>
-                    <TableHead>Артикул</TableHead>
-                    <TableHead className="text-center">Количество</TableHead>
-                    <TableHead>Склад</TableHead>
-                    <TableHead className="text-right">Цена</TableHead>
-                    <TableHead className="text-right">Сумма</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {order.items.map((item, idx) => {
-                    const product = products.find(p => p.id === item.productId);
-                    if (!product) return null;
-                    return (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell className="text-muted-foreground">{product.article}</TableCell>
-                        <TableCell className="text-center">{item.quantity} шт</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{item.warehouse}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">{product.price.toLocaleString()} ₽</TableCell>
-                        <TableCell className="text-right font-semibold">{(product.price * item.quantity).toLocaleString()} ₽</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-4 border-t">
-            <div className="flex gap-2">
-              <Button variant="outline">
-                <Icon name="FileText" size={16} className="mr-2" />
-                Скачать PDF
-              </Button>
-              <Button variant="outline">
-                <Icon name="Printer" size={16} className="mr-2" />
-                Печать
-              </Button>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground mb-1">Итого к оплате:</p>
-              <p className="text-2xl font-bold">{order.total.toLocaleString()} ₽</p>
-            </div>
-          </div>
           </TabsContent>
 
           <TabsContent value="history" className="mt-4">
-            <OrderStatusHistory orderId={order.id} currentStatus={order.status} />
+            <OrderStatusHistory orderId={order.id} />
           </TabsContent>
         </Tabs>
+
+        <div className="flex justify-end gap-2 mt-6">
+          <Button variant="outline" onClick={onClose}>
+            Закрыть
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
